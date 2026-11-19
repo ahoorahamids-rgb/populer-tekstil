@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PÖPÜLER TEKSTİL | Üretim Takip Sistemi</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <!-- QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Firebase SDK v11 (Realtime Database & App) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getDatabase, ref, push, remove, onValue, set } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+    window.fbRTDBModules = { initializeApp, getDatabase, ref, push, remove, onValue, set };
+  </script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              950: '#070b14',
+              900: '#0b1120',
+              800: '#131c31',
+              700: '#1e293b',
+              600: '#334155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #070b14;
+      color: #f1f5f9;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b1120;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+
+    .floating-bottom-nav {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 448px;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-40 bg-navy-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-lg">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
+      
+      <!-- LOGO & BRANDING -->
+      <div class="flex items-center gap-3 shrink-0">
+        <svg class="w-11 h-11 sm:w-12 sm:h-12 shrink-0 drop-shadow-md" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="28" fill="#1e3a8a" stroke="#ef4444" stroke-width="6"/>
+          <circle cx="32" cy="32" r="22" stroke="#3b82f6" stroke-width="1.5" stroke-opacity="0.5"/>
+          <circle cx="22" cy="20" r="5" fill="#ef4444" stroke="#b91c1c" stroke-width="1"/>
+          <circle cx="22" cy="20" r="2.2" fill="#ffffff"/>
+          <circle cx="42" cy="20" r="5" fill="#ef4444" stroke="#b91c1c" stroke-width="1"/>
+          <circle cx="42" cy="20" r="2.2" fill="#ffffff"/>
+          <circle cx="22" cy="44" r="5" fill="#ef4444" stroke="#b91c1c" stroke-width="1"/>
+          <circle cx="22" cy="44" r="2.2" fill="#ffffff"/>
+          <circle cx="42" cy="44" r="5" fill="#ef4444" stroke="#b91c1c" stroke-width="1"/>
+          <circle cx="42" cy="44" r="2.2" fill="#ffffff"/>
+          <line x1="22" y1="20" x2="22" y2="44" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="42" y1="20" x2="42" y2="44" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+
+        <div class="leading-none">
+          <div class="flex items-center font-black text-xl sm:text-2xl tracking-tight text-white">
+            <span>P</span>
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 mx-[2px] inline-block shrink-0 align-middle" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="14" fill="#ef4444" stroke="#b91c1c" stroke-width="1"/>
+              <circle cx="11" cy="11" r="3" fill="#ffffff"/>
+              <circle cx="21" cy="11" r="3" fill="#ffffff"/>
+              <circle cx="11" cy="21" r="3" fill="#ffffff"/>
+              <circle cx="21" cy="21" r="3" fill="#ffffff"/>
+            </svg>
+            <span>PÜLER</span>
+          </div>
+          <div class="text-xs sm:text-[13px] font-extrabold tracking-[0.2em] text-blue-500 mt-1">
+            TEKSTİL
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Live Clock, Trash, QR & Share -->
+      <div class="flex items-center gap-2">
+        <div class="px-3 py-1.5 rounded-xl bg-navy-950 border border-slate-800 text-right leading-tight">
+          <div id="live-time" class="text-xs sm:text-sm font-extrabold font-mono text-emerald-400 tracking-wide">00:00:00</div>
+          <div id="live-date" class="text-[10px] sm:text-[11px] font-semibold font-mono text-slate-400">00.00.0000</div>
+        </div>
+
+        <button type="button" id="btn-header-reset" title="Tüm Kayıtları Temizle" class="p-2.5 sm:p-3 rounded-xl bg-navy-800 border border-slate-700 text-rose-400 hover:bg-rose-500/20 hover:border-rose-500 active:scale-95 transition">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+        </button>
+
+        <button type="button" id="btn-open-qr" title="QR Kod" class="p-2.5 sm:p-3 rounded-xl bg-navy-800 border border-slate-700 text-slate-200 hover:border-blue-500 hover:text-blue-400 active:scale-95 transition">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+        </button>
+
+        <button type="button" id="btn-header-share" title="Raporu Paylaş" class="p-2.5 sm:p-3 rounded-xl bg-navy-800 border border-slate-700 text-slate-200 hover:border-emerald-500 hover:text-emerald-400 active:scale-95 transition">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-4xl mx-auto px-4 pt-5 pb-32">
+
+    <!-- TAB 1: ÜRETİM GİRİŞİ -->
+    <section id="tab-entry" class="space-y-5">
+      <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <span class="text-amber-400 text-lg sm:text-xl">⚡</span>
+            <h2 class="font-bold text-base sm:text-lg text-white">Hızlı Üretim Girişi</h2>
+          </div>
+
+          <button type="button" id="btn-open-scanner" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-bold shadow-md shadow-indigo-600/25 active:scale-95 transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" x2="17" y1="12" y2="12"/></svg>
+            <span>Barkod / QR Tarayıcı</span>
+          </button>
+        </div>
+
+        <div class="space-y-6 pt-5">
+          <!-- 1. PERSONEL -->
+          <div>
+            <div class="flex items-center justify-between mb-2.5">
+              <label class="text-xs sm:text-sm font-bold text-slate-200">1. Kim Kaydetti? (Personel Seçimi)</label>
+              <button type="button" data-manage="workers" class="btn-manage inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 py-1 px-3 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 transition">
+                <span>+ Düzenle</span>
+              </button>
+            </div>
+            <div id="worker-grid" class="grid grid-cols-3 sm:grid-cols-5 gap-2.5"></div>
+          </div>
+
+          <!-- 2. AŞAMA (Strictly 4 stages: İlik, İşaret, Düğme, Paketleme + custom stages) -->
+          <div>
+            <div class="flex items-center justify-between mb-2.5">
+              <label class="text-xs sm:text-sm font-bold text-slate-200">2. Yapılan İş / Aşama</label>
+              <button type="button" data-manage="stages" class="btn-manage inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 py-1 px-3 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 transition">
+                <span>+ Aşama Ekle</span>
+              </button>
+            </div>
+            <div id="stage-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+          </div>
+
+          <!-- 3. MARKA -->
+          <div>
+            <div class="flex items-center justify-between mb-2.5">
+              <label class="text-xs sm:text-sm font-bold text-slate-200">3. Marka / Müşteri</label>
+              <button type="button" data-manage="brands" class="btn-manage inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 py-1 px-3 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 transition">
+                <span>+ Marka Ekle</span>
+              </button>
+            </div>
+            <div id="brand-grid" class="grid grid-cols-3 sm:grid-cols-6 gap-2.5 mb-2.5"></div>
+            <div class="relative">
+              <select id="brand-dropdown" class="w-full appearance-none bg-navy-950 border border-slate-800 focus:border-blue-500 rounded-xl px-4 py-3 text-xs sm:text-sm font-semibold text-white outline-none transition cursor-pointer"></select>
+              <svg class="w-4 h-4 text-slate-400 left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+
+          <!-- 4. RENK -->
+          <div>
+            <div class="flex items-center justify-between mb-2.5">
+              <label class="text-xs sm:text-sm font-bold text-slate-200">4. Renk</label>
+              <button type="button" data-manage="colors" class="btn-manage inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 py-1 px-3 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 transition">
+                <span>+ Renk Ekle</span>
+              </button>
+            </div>
+            <div id="color-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+            <div class="mt-2.5 flex items-center gap-2">
+              <input id="custom-color-input" type="text" placeholder="Özel renk (örn. Bordo, Haki)..." class="flex-1 bg-navy-950 border border-slate-800 focus:border-blue-500 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 outline-none" />
+              <button type="button" id="btn-apply-custom-color" class="px-4 py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 border border-slate-700 text-xs sm:text-sm font-bold text-blue-400 active:scale-95 transition">Seç</button>
+            </div>
+          </div>
+
+          <!-- 5. MODEL & FOTO -->
+          <div>
+            <label for="model-input" class="block text-xs sm:text-sm font-bold text-slate-200 mb-2.5">5. Model / Kod ve Fotoğraf</label>
+            <div class="flex items-center gap-2.5">
+              <input id="model-input" type="text" placeholder="Örn: Mont 200, Pantolon 50..." class="flex-1 min-w-0 bg-navy-950 border border-slate-800 focus:border-blue-500 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition" />
+              <label class="inline-flex items-center gap-1.5 px-4 py-3 rounded-xl bg-navy-800 hover:bg-navy-700 border border-slate-700 text-blue-400 text-xs sm:text-sm font-semibold cursor-pointer shrink-0 active:scale-95 transition">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                <span>Fotoğraf Çek</span>
+                <input id="photo-input" type="file" accept="image/*" capture="environment" class="hidden" />
+              </label>
+            </div>
+            <div id="photo-preview-box" class="hidden mt-2.5 flex items-center justify-between bg-navy-950 border border-slate-800 rounded-xl p-2.5">
+              <div class="flex items-center gap-2.5">
+                <img id="photo-preview-img" src="" alt="Önizleme" class="w-11 h-11 rounded-lg object-cover border border-slate-700" />
+                <div>
+                  <p class="text-xs font-semibold text-emerald-400">Fotoğraf eklendi</p>
+                  <p class="text-[11px] text-slate-400">Kayıt ile birlikte saklanacaktır</p>
+                </div>
+              </div>
+              <button type="button" id="btn-clear-photo" class="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- 6. BEDEN -->
+          <div>
+            <div class="flex items-center justify-between mb-2.5">
+              <label class="text-xs sm:text-sm font-bold text-slate-200">6. Beden / Boyut</label>
+              <button type="button" data-manage="sizes" class="btn-manage inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 py-1 px-3 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 transition">
+                <span>+ Beden Ekle / Yönet</span>
+              </button>
+            </div>
+            <div id="size-grid" class="grid grid-cols-4 sm:grid-cols-10 gap-2"></div>
+          </div>
+
+          <!-- 7. ADET -->
+          <div>
+            <label for="qty-input" class="block text-xs sm:text-sm font-bold text-slate-200 mb-2.5">7. Miktar / Adet</label>
+            <div class="flex items-center gap-2.5 mb-3">
+              <button type="button" data-delta="-1" class="btn-qty-delta px-4 py-3 rounded-xl bg-navy-950 border border-slate-800 hover:border-slate-600 text-slate-300 font-bold text-sm active:scale-95 transition">-1</button>
+              <input id="qty-input" type="number" min="1" value="10" class="flex-1 min-w-0 text-center bg-navy-950 border border-blue-500/60 focus:border-blue-500 rounded-xl py-2.5 text-lg sm:text-xl font-extrabold text-white outline-none" />
+              <button type="button" data-delta="1" class="btn-qty-delta px-4 py-3 rounded-xl bg-navy-950 border border-slate-800 hover:border-slate-600 text-blue-400 font-bold text-sm active:scale-95 transition">+1</button>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2.5 mb-4">
+              <button type="button" data-delta="5" class="btn-qty-delta py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 text-xs font-bold text-blue-300 border border-slate-700 active:scale-95 transition">+5</button>
+              <button type="button" data-delta="10" class="btn-qty-delta py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 text-xs font-bold text-blue-300 border border-slate-700 active:scale-95 transition">+10</button>
+              <button type="button" data-delta="20" class="btn-qty-delta py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 text-xs font-bold text-blue-300 border border-slate-700 active:scale-95 transition">+20</button>
+              <button type="button" data-delta="50" class="btn-qty-delta py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 text-xs font-bold text-blue-300 border border-slate-700 active:scale-95 transition">+50</button>
+            </div>
+
+            <button type="button" id="btn-save-record" class="w-full py-4 px-5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 active:scale-98 transition">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <span>Üretim Kaydı Ekle</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: RAPORLAR -->
+    <section id="tab-admin" class="hidden space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+          <div class="text-xs font-medium text-slate-400">Toplam Üretim</div>
+          <div id="kpi-alltime-qty" class="text-2xl sm:text-3xl font-extrabold text-blue-400 mt-1">0</div>
+          <div id="kpi-today-sub" class="text-xs text-slate-500 mt-1">Bugün: 0 adet</div>
+        </div>
+
+        <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+          <div class="text-xs font-medium text-slate-400">Toplam Kayıt</div>
+          <div id="kpi-total-records" class="text-2xl sm:text-3xl font-extrabold text-indigo-400 mt-1">0</div>
+          <div class="text-xs text-slate-500 mt-1">Gerçekleşen işlem sayısı</div>
+        </div>
+
+        <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+          <div class="text-xs font-medium text-slate-400">Aktif Personel</div>
+          <div id="kpi-active-workers" class="text-2xl sm:text-3xl font-extrabold text-emerald-400 mt-1">0</div>
+          <div class="text-xs text-slate-500 mt-1">Kayıt yapan çalışan</div>
+        </div>
+      </div>
+
+      <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="font-bold text-sm sm:text-base text-white">Excel &amp; Google Sheet Raporu (CSV)</h3>
+          <button type="button" id="btn-open-reset-admin" class="px-3 py-1.5 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400 hover:bg-rose-500/25 text-xs font-bold transition">
+            Tüm Verileri Temizle
+          </button>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          Türkçe karakter uyumlu CSV dosyasını indirerek Excel veya Google Sheets programında açabilirsiniz.
+        </p>
+
+        <button type="button" id="btn-export-csv" class="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-600/25 active:scale-98 transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          <span>Excel Raporunu İndir (CSV)</span>
+        </button>
+      </div>
+
+      <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-sm sm:text-base text-white">Üretim Kayıtları</h3>
+          <span id="record-count-badge" class="px-2.5 py-1 rounded-lg bg-navy-800 border border-slate-700 text-xs font-semibold text-slate-300">0 Kayıt</span>
+        </div>
+
+        <div class="relative">
+          <input id="record-search-input" type="text" placeholder="Personel, marka, renk veya model ara..." class="w-full bg-navy-950 border border-slate-800 focus:border-blue-500 rounded-xl pr-3.5 pl-9 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 outline-none transition" />
+          <svg class="w-4 h-4 text-slate-500 left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+
+        <div id="records-list" class="space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: İSTATİSTİK VE GRAFİK -->
+    <section id="tab-performance" class="hidden space-y-5">
+      <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="font-bold text-base text-white">1. Personel Performansı (Kim Ne Kadar Üretti?)</h3>
+            <p class="text-xs text-slate-400">Çalışan bazlı toplam üretim adetleri</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-lg bg-blue-500/15 text-blue-400 text-xs font-bold">Personel</span>
+        </div>
+        <div class="relative w-full h-64 mb-4">
+          <canvas id="staffChart"></canvas>
+        </div>
+        <div id="staff-progress-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+      </div>
+
+      <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="font-bold text-base text-white">2. Marka / Müşteri Dağılımı</h3>
+            <p class="text-xs text-slate-400">Markalara göre üretim oranları</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 text-xs font-bold">Markalar</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+          <div class="relative w-full h-56">
+            <canvas id="clientChart"></canvas>
+          </div>
+          <div id="client-breakdown-list" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <div class="bg-navy-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-base text-white">3. Aşama ve Renk Özeti</h3>
+            <p class="text-xs text-slate-400">Detaylı dağılım istatistikleri</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-lg bg-purple-500/15 text-purple-400 text-xs font-bold">Özet</span>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-slate-300 mb-2">Üretim Aşamaları</h4>
+          <div id="stage-summary-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-slate-300 mb-2">Renk Çeşitliliği</h4>
+          <div id="color-summary-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="mt-8 pt-4 pb-4 border-t border-slate-800/70 text-center space-y-1">
+      <p class="text-xs font-semibold text-slate-400">
+        PÖPÜLER TEKSTİL • Üretim Yönetim ve Takip Sistemi
+      </p>
+      <p class="text-xs font-bold text-blue-400">
+        Designed &amp; Developed by Ahoora Hamid
+      </p>
+    </footer>
+
+    <!-- CENTERED BOTTOM NAVIGATION BAR -->
+    <nav class="floating-bottom-nav bg-navy-900/95 backdrop-blur-md border border-slate-700/90 rounded-2xl p-1.5 shadow-2xl">
+      <div class="grid grid-cols-3 gap-1.5">
+        <button type="button" data-tab="entry" id="nav-entry" class="nav-btn flex flex-col items-center justify-center py-2 px-2 rounded-xl text-blue-400 bg-blue-500/15 font-bold transition">
+          <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          <span class="text-[11px] leading-tight whitespace-nowrap">Üretim Girişi</span>
+        </button>
+
+        <button type="button" data-tab="admin" id="nav-admin" class="nav-btn flex flex-col items-center justify-center py-2 px-2 rounded-xl text-slate-400 hover:text-slate-200 font-semibold transition">
+          <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+          <span class="text-[11px] leading-tight whitespace-nowrap">Raporlar</span>
+        </button>
+
+        <button type="button" data-tab="performance" id="nav-performance" class="nav-btn flex flex-col items-center justify-center py-2 px-2 rounded-xl text-slate-400 hover:text-slate-200 font-semibold transition">
+          <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          <span class="text-[11px] leading-tight whitespace-nowrap">İstatistik</span>
+        </button>
+      </div>
+    </nav>
+  </main>
+
+  <!-- MODALS -->
+  <div id="qr-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-navy-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-sm sm:text-base text-white">Uygulama QR Kodu</h3>
+        <button type="button" data-close="qr-modal" class="btn-close-modal p-1.5 rounded-lg bg-navy-800 text-slate-400 hover:text-white">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <p class="text-xs text-slate-400 text-center">Telefon ve laptopta eşzamanlı kullanmak için taratın:</p>
+      <div class="flex justify-center py-2">
+        <div id="qrcode-container" class="bg-white p-3.5 rounded-2xl shadow-inner flex items-center justify-center min-h-[196px] min-w-[196px]"></div>
+      </div>
+      <div class="text-center">
+        <span id="current-url-text" class="text-[11px] text-blue-400 break-all font-mono"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="scanner-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-navy-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-base text-white">Barkod / QR Tarayıcı</h3>
+        <button type="button" id="btn-close-scanner" class="p-1.5 rounded-lg bg-navy-800 text-slate-400 hover:text-white">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="relative rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center border border-slate-700">
+        <video id="scanner-video" class="w-full h-full object-cover hidden" playsinline></video>
+        <div id="scanner-placeholder" class="text-center p-4 space-y-1">
+          <p class="text-xs text-slate-300 font-semibold">Kamera bekleniyor</p>
+          <p class="text-[11px] text-slate-400">Veya model kodunu aşağıdan girin</p>
+        </div>
+        <div class="inset-x-8 top-1/2 -translate-y-1/2 h-0.5 bg-indigo-500 shadow-[0_0_12px_#6366f1]"></div>
+      </div>
+      <div class="space-y-2">
+        <label class="text-xs text-slate-400">Manuel Model Kodu:</label>
+        <div class="flex gap-2">
+          <input id="manual-qr-input" type="text" placeholder="Örn: LCW-JACKET-202" class="flex-1 bg-navy-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+          <button type="button" id="btn-apply-scan" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold">Uygula</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="manage-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-navy-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="manage-modal-title" class="font-bold text-base text-white">Liste Yönetimi</h3>
+        <button type="button" data-close="manage-modal" class="btn-close-modal p-1.5 rounded-lg bg-navy-800 text-slate-400 hover:text-white">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="flex gap-2">
+        <input id="manage-new-item" type="text" placeholder="Yeni öğe adı..." class="flex-1 bg-navy-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-blue-500" />
+        <button type="button" id="btn-add-manage-item" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold">Ekle</button>
+      </div>
+      <div id="manage-items-list" class="max-h-60 overflow-y-auto space-y-1.5 pr-1"></div>
+    </div>
+  </div>
+
+  <div id="reset-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-navy-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 text-center">
+      <div class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center mx-auto text-xl">🗑️</div>
+      <h3 class="font-bold text-base text-white">Tüm Kayıtlar Silinsin mi?</h3>
+      <p class="text-xs text-slate-400 leading-relaxed">Bulut ve cihaz üzerindeki tüm üretim kayıtları kalıcı olarak silinecektir. Emin misiniz?</p>
+      <div class="grid grid-cols-2 gap-2.5 pt-2">
+        <button type="button" data-close="reset-modal" class="btn-close-modal py-2.5 rounded-xl bg-navy-800 text-slate-300 text-xs font-bold hover:bg-navy-700">Vazgeç</button>
+        <button type="button" id="btn-confirm-reset" class="py-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-500">Evet, Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform -translate-y-2">
+    <div class="bg-navy-800 border border-blue-500/50 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 text-xs sm:text-sm font-semibold">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span id="toast-message">İşlem başarılı</span>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEYS = {
+        RECORDS: 'populer_tekstil_recs',
+        SETTINGS: 'populer_tekstil_settings',
+        WORKERS: 'populer_tekstil_workers',
+        STAGES: 'populer_tekstil_stages',
+        BRANDS: 'populer_tekstil_brands',
+        COLORS: 'populer_tekstil_colors',
+        SIZES: 'populer_tekstil_sizes'
+      };
+
+      const DEFAULT_STATE = {
+        workers: ['Fatih', 'Tarık', 'Hasan', 'Necdet', 'Fatma', 'Mustafa Küçük', 'Mustafa Büyük', 'Dilan', 'Aysel', 'İsa'],
+        stages: [
+          { name: 'İlik', subtitle: 'İlik Açma', iconType: 'ilik', color: '#f59e0b' },
+          { name: 'Düğme', subtitle: 'Düğme Dikimi', iconType: 'dugme', color: '#a855f7' },
+          { name: 'İşaret', subtitle: 'Düğme Yeri', iconType: 'isaret', color: '#38bdf8' },
+          { name: 'Paketleme', subtitle: 'Kapatma & Gani', iconType: 'paketleme', color: '#10b981' }
+        ],
+        brands: ['LC Waikiki', 'Zara', 'H&M', 'Defacto', 'Koton', 'Mango', 'Mavi'],
+        colors: [
+          { name: 'Siyah', hex: '#111827' },
+          { name: 'Beyaz', hex: '#f8fafc' },
+          { name: 'Lacivert', hex: '#1e3a8a' },
+          { name: 'Gri', hex: '#6b7280' },
+          { name: 'Kırmızı', hex: '#dc2626' },
+          { name: 'Mavi', hex: '#2563eb' },
+          { name: 'Bej', hex: '#d6c7b2' },
+          { name: 'Yeşil', hex: '#16a34a' }
+        ],
+        sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'STD', 'Yok'],
+        records: []
+      };
+
+      function readStorageArray(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (!raw) return JSON.parse(JSON.stringify(fallback));
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+          if (key === STORAGE_KEYS.RECORDS && Array.isArray(parsed)) {
+            return parsed;
+          }
+        } catch (e) {}
+        return JSON.parse(JSON.stringify(fallback));
+      }
+
+      function readSavedSettings() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+              return parsed;
+            }
+          }
+        } catch (e) {}
+        return null;
+      }
+
+      function persistDynamicListsToStorage() {
+        try {
+          const payload = {
+            workers: appState.workers,
+            stages: appState.stages,
+            brands: appState.brands,
+            colors: appState.colors,
+            sizes: appState.sizes
+          };
+          localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(payload));
+          localStorage.setItem(STORAGE_KEYS.WORKERS, JSON.stringify(appState.workers));
+          localStorage.setItem(STORAGE_KEYS.STAGES, JSON.stringify(appState.stages));
+          localStorage.setItem(STORAGE_KEYS.BRANDS, JSON.stringify(appState.brands));
+          localStorage.setItem(STORAGE_KEYS.COLORS, JSON.stringify(appState.colors));
+          localStorage.setItem(STORAGE_KEYS.SIZES, JSON.stringify(appState.sizes));
+        } catch (e) {}
+      }
+
+      function persistRecordsToStorage() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.RECORDS, JSON.stringify(appState.records));
+        } catch (e) {}
+      }
+
+      const savedSettings = readSavedSettings();
+
+      let appState = {
+        workers: (savedSettings && Array.isArray(savedSettings.workers) && savedSettings.workers.length)
+          ? savedSettings.workers
+          : readStorageArray(STORAGE_KEYS.WORKERS, DEFAULT_STATE.workers),
+        stages: (savedSettings && Array.isArray(savedSettings.stages) && savedSettings.stages.length)
+          ? savedSettings.stages
+          : readStorageArray(STORAGE_KEYS.STAGES, DEFAULT_STATE.stages),
+        brands: (savedSettings && Array.isArray(savedSettings.brands) && savedSettings.brands.length)
+          ? savedSettings.brands
+          : readStorageArray(STORAGE_KEYS.BRANDS, DEFAULT_STATE.brands),
+        colors: (savedSettings && Array.isArray(savedSettings.colors) && savedSettings.colors.length)
+          ? savedSettings.colors
+          : readStorageArray(STORAGE_KEYS.COLORS, DEFAULT_STATE.colors),
+        sizes: (savedSettings && Array.isArray(savedSettings.sizes) && savedSettings.sizes.length)
+          ? savedSettings.sizes
+          : readStorageArray(STORAGE_KEYS.SIZES, DEFAULT_STATE.sizes),
+        records: readStorageArray(STORAGE_KEYS.RECORDS, DEFAULT_STATE.records)
+      };
+
+      persistDynamicListsToStorage();
+
+      let selectedWorker = appState.workers[0] || 'Fatih';
+      let selectedStage = (typeof appState.stages[0] === 'string' ? appState.stages[0] : appState.stages[0]?.name) || 'İlik';
+      let selectedBrand = appState.brands[0] || 'LC Waikiki';
+      let selectedColor = (typeof appState.colors[0] === 'string' ? appState.colors[0] : appState.colors[0]?.name) || 'Siyah';
+      let selectedSize = appState.sizes.includes('M') ? 'M' : (appState.sizes[0] || 'STD');
+      let capturedPhotoData = null;
+      let currentManageType = null;
+      let staffChartInstance = null;
+      let clientChartInstance = null;
+      let cameraStream = null;
+      let rtdbRef = null;
+      let settingsRef = null;
+
+      function syncSettingsToRTDB() {
+        persistDynamicListsToStorage();
+
+        if (window.fbRTDBModules && settingsRef) {
+          const { set } = window.fbRTDBModules;
+          set(settingsRef, {
+            workers: appState.workers,
+            stages: appState.stages,
+            brands: appState.brands,
+            colors: appState.colors,
+            sizes: appState.sizes,
+            updatedAt: Date.now()
+          }).catch((err) => console.warn("Settings RTDB write warning", err));
+        }
+      }
+
+      async function initRealtimeDatabase() {
+        if (!window.fbRTDBModules) {
+          setTimeout(initRealtimeDatabase, 100);
+          return;
+        }
+        try {
+          const { initializeApp, getDatabase, ref, onValue } = window.fbRTDBModules;
+          const firebaseConfig = {
+            databaseURL: "https://populer-tekstil-default-rtdb.firebaseio.com/"
+          };
+          const app = initializeApp(firebaseConfig);
+          const db = getDatabase(app);
+          rtdbRef = ref(db, 'records');
+          settingsRef = ref(db, 'settings');
+
+          onValue(rtdbRef, (snapshot) => {
+            const val = snapshot.val();
+            const recs = [];
+            if (val) {
+              Object.keys(val).forEach((key) => {
+                recs.push({ firebaseId: key, ...val[key] });
+              });
+            }
+            recs.sort((a, b) => b.id - a.id);
+            if (recs.length > 0 || appState.records.length === 0) {
+              appState.records = recs;
+              persistRecordsToStorage();
+            }
+            updateDashboardAndCharts();
+          }, (err) => {
+            console.warn("RTDB sync warning:", err);
+          });
+
+          onValue(settingsRef, (snapshot) => {
+            const sVal = snapshot.val();
+            if (sVal && typeof sVal === 'object') {
+              let changed = false;
+              if (Array.isArray(sVal.workers) && sVal.workers.length) {
+                appState.workers = sVal.workers;
+                changed = true;
+              }
+              if (Array.isArray(sVal.stages) && sVal.stages.length) {
+                appState.stages = sVal.stages;
+                changed = true;
+              }
+              if (Array.isArray(sVal.brands) && sVal.brands.length) {
+                appState.brands = sVal.brands;
+                changed = true;
+              }
+              if (Array.isArray(sVal.colors) && sVal.colors.length) {
+                appState.colors = sVal.colors;
+                changed = true;
+              }
+              if (Array.isArray(sVal.sizes) && sVal.sizes.length) {
+                appState.sizes = sVal.sizes;
+                changed = true;
+              }
+              if (changed) {
+                persistDynamicListsToStorage();
+                refreshPickers();
+                if (!document.getElementById('manage-modal')?.classList.contains('hidden') && currentManageType) {
+                  renderManageItems();
+                }
+                updateDashboardAndCharts();
+              }
+            }
+          }, (err) => {
+            console.warn("Settings RTDB listener warning:", err);
+          });
+        } catch (e) {
+          console.warn("Using offline mode fallback", e);
+        }
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById('toast');
+        const msgEl = document.getElementById('toast-message');
+        if (!toast || !msgEl) return;
+        msgEl.textContent = msg;
+        toast.classList.remove('opacity-0', '-translate-y-2');
+        toast.classList.add('opacity-100', 'translate-y-0');
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(() => {
+          toast.classList.remove('opacity-100', 'translate-y-0');
+          toast.classList.add('opacity-0', '-translate-y-2');
+        }, 2600);
+      }
+
+      function getFormattedNow() {
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const dateStr = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`;
+        const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const fullTimeStr = `${timeStr}:${pad(now.getSeconds())}`;
+        return { dateStr, timeStr, fullTimeStr };
+      }
+
+      function startLiveClock() {
+        const update = () => {
+          const { dateStr, fullTimeStr } = getFormattedNow();
+          const timeEl = document.getElementById('live-time');
+          const dateEl = document.getElementById('live-date');
+          if (timeEl) timeEl.textContent = fullTimeStr;
+          if (dateEl) dateEl.textContent = dateStr;
+        };
+        update();
+        setInterval(update, 1000);
+      }
+
+      function getStageSvgIcon(iconType, color) {
+        switch (iconType) {
+          case 'ilik':
+            return `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="8" x2="12" y2="16"/></svg>`;
+          case 'isaret':
+            return `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="21"/><line x1="3" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="21" y2="12"/><circle cx="12" cy="12" r="2" fill="${color}"/></svg>`;
+          case 'dugme':
+            return `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="9.5" cy="9.5" r="1" fill="${color}"/><circle cx="14.5" cy="9.5" r="1" fill="${color}"/><circle cx="9.5" cy="14.5" r="1" fill="${color}"/><circle cx="14.5" cy="14.5" r="1" fill="${color}"/></svg>`;
+          case 'paketleme':
+            return `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>`;
+          default:
+            return `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="${color}"/></svg>`;
+        }
+      }
+
+      function renderWorkers() {
+        const grid = document.getElementById('worker-grid');
+        if (!grid) return;
+        grid.innerHTML = appState.workers.map((worker) => {
+          const active = worker === selectedWorker;
+          const cls = active
+            ? 'bg-blue-600/25 border-blue-500 text-white shadow-md shadow-blue-600/20'
+            : 'bg-navy-950 border-slate-800 text-slate-300 hover:border-slate-600';
+          return `<button type="button" data-worker="${escapeHtml(worker)}" class="worker-btn py-2.5 px-2.5 rounded-xl border text-xs sm:text-sm font-bold truncate transition active:scale-95 ${cls}">${escapeHtml(worker)}</button>`;
+        }).join('');
+
+        grid.querySelectorAll('.worker-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            selectedWorker = btn.getAttribute('data-worker');
+            renderWorkers();
+          });
+        });
+      }
+
+      function renderStages() {
+        const grid = document.getElementById('stage-grid');
+        if (!grid) return;
+        grid.innerHTML = appState.stages.map((st) => {
+          const name = typeof st === 'string' ? st : st.name;
+          const subtitle = typeof st === 'string' ? 'Üretim Aşaması' : (st.subtitle || 'Üretim Aşaması');
+          const accent = typeof st === 'string' ? '#3b82f6' : (st.color || '#3b82f6');
+          const iconType = typeof st === 'string' ? 'default' : (st.iconType || 'default');
+          const active = name === selectedStage;
+          const cls = active
+            ? 'bg-gradient-to-r from-blue-600/35 to-blue-500/20 border-blue-400 text-white shadow-md shadow-blue-600/20'
+            : 'bg-navy-950 border-slate-800 text-slate-300 hover:border-slate-600';
+          return `
+            <button type="button" data-stage="${escapeHtml(name)}" class="stage-btn flex items-center gap-3.5 p-3.5 rounded-xl border text-left transition active:scale-95 ${cls}">
+              <span class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-white/10" style="background-color: ${accent}22;">
+                ${getStageSvgIcon(iconType, accent)}
+              </span>
+              <div class="min-w-0 leading-tight">
+                <div class="font-extrabold text-xs sm:text-sm text-white truncate">${escapeHtml(name)}</div>
+                <div class="text-[11px] sm:text-xs text-slate-400 truncate mt-0.5">${escapeHtml(subtitle)}</div>
+              </div>
+            </button>
+          `;
+        }).join('');
+
+        grid.querySelectorAll('.stage-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            selectedStage = btn.getAttribute('data-stage');
+            renderStages();
+          });
+        });
+      }
+
+      function renderBrands() {
+        const grid = document.getElementById('brand-grid');
+        const dropdown = document.getElementById('brand-dropdown');
+        if (grid) {
+          grid.innerHTML = appState.brands.map((brand) => {
+            const active = brand === selectedBrand;
+            const cls = active
+              ? 'bg-blue-600/30 border-blue-400 text-white shadow-md shadow-blue-600/20'
+              : 'bg-navy-950 border-slate-800 text-slate-300 hover:border-slate-600';
+            return `<button type="button" data-brand="${escapeHtml(brand)}" class="brand-btn py-2.5 px-2.5 rounded-xl border text-xs sm:text-sm font-bold truncate transition active:scale-95 ${cls}">${escapeHtml(brand)}</button>`;
+          }).join('');
+
+          grid.querySelectorAll('.brand-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+              selectedBrand = btn.getAttribute('data-brand');
+              renderBrands();
+            });
+          });
+        }
+
+        if (dropdown) {
+          dropdown.innerHTML = appState.brands.map((brand) => {
+            const selectedAttr = brand === selectedBrand ? 'selected' : '';
+            return `<option value="${escapeHtml(brand)}" ${selectedAttr}>${escapeHtml(brand)}</option>`;
+          }).join('');
+        }
+      }
+
+      function renderColors() {
+        const grid = document.getElementById('color-grid');
+        if (!grid) return;
+        grid.innerHTML = appState.colors.map((c) => {
+          const name = typeof c === 'string' ? c : c.name;
+          const hex = typeof c === 'string' ? '#3b82f6' : c.hex;
+          const active = name === selectedColor;
+          const cls = active
+            ? 'bg-blue-600/25 border-blue-400 text-white ring-1 ring-blue-400'
+            : 'bg-navy-950 border-slate-800 text-slate-300 hover:border-slate-600';
+          return `
+            <button type="button" data-color="${escapeHtml(name)}" class="color-btn flex items-center gap-2 py-2.5 px-3 rounded-xl border text-xs sm:text-sm font-bold transition active:scale-95 ${cls}">
+              <span class="w-3.5 h-3.5 rounded-full border border-white/40 shrink-0" style="background-color: ${hex};"></span>
+              <span class="truncate">${escapeHtml(name)}</span>
+            </button>
+          `;
+        }).join('');
+
+        grid.querySelectorAll('.color-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            selectedColor = btn.getAttribute('data-color');
+            renderColors();
+          });
+        });
+      }
+
+      function renderSizes() {
+        const grid = document.getElementById('size-grid');
+        if (!grid) return;
+        grid.innerHTML = appState.sizes.map((sz) => {
+          const active = sz === selectedSize;
+          const cls = active
+            ? 'bg-blue-600 border-blue-400 text-white shadow-md shadow-blue-600/25'
+            : 'bg-navy-950 border-slate-800 text-slate-300 hover:border-slate-600';
+          return `<button type="button" data-size="${escapeHtml(sz)}" class="size-btn py-2.5 rounded-xl border text-xs font-extrabold transition active:scale-95 ${cls}">${escapeHtml(sz)}</button>`;
+        }).join('');
+
+        grid.querySelectorAll('.size-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            selectedSize = btn.getAttribute('data-size');
+            renderSizes();
+          });
+        });
+      }
+
+      function switchTab(tabName) {
+        const tabs = {
+          entry: document.getElementById('tab-entry'),
+          admin: document.getElementById('tab-admin'),
+          performance: document.getElementById('tab-performance')
+        };
+        const navs = {
+          entry: document.getElementById('nav-entry'),
+          admin: document.getElementById('nav-admin'),
+          performance: document.getElementById('nav-performance')
+        };
+
+        Object.keys(tabs).forEach((key) => {
+          if (!tabs[key] || !navs[key]) return;
+          if (key === tabName) {
+            tabs[key].classList.remove('hidden');
+            navs[key].classList.add('text-blue-400', 'bg-blue-500/15', 'font-bold');
+            navs[key].classList.remove('text-slate-400', 'font-semibold');
+          } else {
+            tabs[key].classList.add('hidden');
+            navs[key].classList.remove('text-blue-400', 'bg-blue-500/15', 'font-bold');
+            navs[key].classList.add('text-slate-400', 'font-semibold');
+          }
+        });
+
+        if (tabName === 'admin' || tabName === 'performance') {
+          updateDashboardAndCharts();
+        }
+      }
+
+      function syncToRTDB() {
+        persistRecordsToStorage();
+        persistDynamicListsToStorage();
+
+        if (window.fbRTDBModules && rtdbRef) {
+          const { set } = window.fbRTDBModules;
+          const payload = {};
+          appState.records.forEach((r) => {
+            const key = r.firebaseId || ('rec_' + r.id);
+            payload[key] = {
+              id: r.id,
+              date: r.date,
+              time: r.time,
+              timestamp: r.timestamp,
+              worker: r.worker,
+              stage: r.stage,
+              brand: r.brand,
+              color: r.color,
+              model: r.model,
+              size: r.size,
+              qty: r.qty,
+              photo: r.photo || ''
+            };
+          });
+          set(rtdbRef, payload).catch((err) => console.warn("RTDB write warning", err));
+        }
+      }
+
+      async function saveProductionRecord() {
+        const modelEl = document.getElementById('model-input');
+        const qtyEl = document.getElementById('qty-input');
+
+        const model = (modelEl && modelEl.value.trim()) ? modelEl.value.trim() : 'Genel Model';
+        const qty = qtyEl ? parseInt(qtyEl.value, 10) : 0;
+
+        if (!qty || isNaN(qty) || qty <= 0) {
+          showToast('Lütfen geçerli bir miktar girin!');
+          return;
+        }
+
+        const { dateStr, timeStr } = getFormattedNow();
+        const recordId = Date.now();
+        const fbKey = 'rec_' + recordId + Math.random().toString(36).substr(2, 5);
+
+        const record = {
+          id: recordId,
+          firebaseId: fbKey,
+          date: dateStr,
+          time: timeStr,
+          timestamp: `${dateStr} ${timeStr}`,
+          worker: selectedWorker,
+          stage: selectedStage,
+          brand: selectedBrand,
+          color: selectedColor,
+          model: model,
+          size: selectedSize,
+          qty: qty,
+          photo: capturedPhotoData || ''
+        };
+
+        appState.records.unshift(record);
+        syncToRTDB();
+
+        if (modelEl) modelEl.value = '';
+        clearPhotoPreview();
+        updateDashboardAndCharts();
+        showToast(`Kaydedildi: ${selectedWorker} • +${qty} Adet`);
+      }
+
+      async function deleteRecord(recordObj) {
+        appState.records = appState.records.filter((r) => r.id !== recordObj.id && r.firebaseId !== recordObj.firebaseId);
+        syncToRTDB();
+        updateDashboardAndCharts();
+        showToast('Kayıt silindi');
+      }
+
+      async function resetAllRecords() {
+        appState.records = [];
+        syncToRTDB();
+        updateDashboardAndCharts();
+        showToast('Tüm kayıtlar temizlendi');
+      }
+
+      function updateDashboardAndCharts() {
+        const records = appState.records;
+        const { dateStr } = getFormattedNow();
+        const searchInput = document.getElementById('record-search-input');
+        const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+        const totalAllTimeQty = records.reduce((sum, r) => sum + r.qty, 0);
+        const todayQty = records
+          .filter((r) => r.date === dateStr)
+          .reduce((sum, r) => sum + r.qty, 0);
+        const activeWorkersCount = new Set(records.map((r) => r.worker)).size;
+
+        document.getElementById('kpi-alltime-qty').textContent = totalAllTimeQty.toLocaleString('tr-TR');
+        document.getElementById('kpi-today-sub').textContent = `Bugün: ${todayQty.toLocaleString('tr-TR')} adet`;
+        document.getElementById('kpi-total-records').textContent = records.length.toLocaleString('tr-TR');
+        document.getElementById('kpi-active-workers').textContent = activeWorkersCount.toLocaleString('tr-TR');
+
+        const filteredRecords = query
+          ? records.filter((r) =>
+              (r.worker || '').toLowerCase().includes(query) ||
+              (r.brand || '').toLowerCase().includes(query) ||
+              (r.color || '').toLowerCase().includes(query) ||
+              (r.stage || '').toLowerCase().includes(query) ||
+              (r.model || '').toLowerCase().includes(query) ||
+              (r.size || '').toLowerCase().includes(query)
+            )
+          : records;
+
+        document.getElementById('record-count-badge').textContent = `${filteredRecords.length.toLocaleString('tr-TR')} Kayıt`;
+
+        const listEl = document.getElementById('records-list');
+        if (filteredRecords.length === 0) {
+          listEl.innerHTML = `
+            <div class="text-center py-8 text-slate-500 text-xs sm:text-sm">
+              ${records.length === 0 ? 'Henüz kayıt bulunmuyor.' : 'Aramaya uygun kayıt bulunamadı.'}
+            </div>
+          `;
+        } else {
+          listEl.innerHTML = filteredRecords.map((r, idx) => `
+            <div class="flex items-center justify-between gap-2.5 p-3.5 rounded-xl bg-navy-950 border border-slate-800">
+              <div class="flex items-center gap-3 min-w-0">
+                ${r.photo ? `<img src="${r.photo}" class="w-12 h-12 rounded-lg object-cover border border-slate-700 shrink-0" />` : ''}
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="font-bold text-sm text-white">${escapeHtml(r.worker)}</span>
+                    <span class="px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-400 text-[11px] font-bold">${escapeHtml(r.stage)}</span>
+                    <span class="px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/25 text-[11px] font-semibold">${escapeHtml(r.color || 'Siyah')}</span>
+                    <span class="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/25 text-[11px] font-bold">Beden: ${escapeHtml(r.size || 'STD')}</span>
+                  </div>
+                  <div class="text-xs text-slate-300 mt-1 truncate">
+                    <strong class="text-red-400">${escapeHtml(r.brand)}</strong> • ${escapeHtml(r.model)}
+                  </div>
+                  <div class="text-[11px] font-mono text-slate-400 mt-0.5">
+                    🕒 ${escapeHtml(r.timestamp)}
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2.5 shrink-0">
+                <span class="font-extrabold text-sm text-emerald-400">+${r.qty.toLocaleString('tr-TR')} Adet</span>
+                <button type="button" data-record-idx="${idx}" class="btn-del-record px-2.5 py-1.5 rounded-lg bg-rose-500/15 text-rose-400 hover:bg-rose-500/25 text-xs font-bold transition">
+                  Sil
+                </button>
+              </div>
+            </div>
+          `).join('');
+
+          listEl.querySelectorAll('.btn-del-record').forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const idx = Number(btn.getAttribute('data-record-idx'));
+              deleteRecord(filteredRecords[idx]);
+            });
+          });
+        }
+
+        const workerTotals = {};
+        appState.workers.forEach((w) => { workerTotals[w] = 0; });
+        records.forEach((r) => {
+          workerTotals[r.worker] = (workerTotals[r.worker] || 0) + r.qty;
+        });
+        const sortedWorkers = Object.entries(workerTotals).sort((a, b) => b[1] - a[1]);
+
+        const clientTotals = {};
+        records.forEach((r) => {
+          const b = r.brand || 'Diğer';
+          clientTotals[b] = (clientTotals[b] || 0) + r.qty;
+        });
+        const sortedClients = Object.entries(clientTotals).sort((a, b) => b[1] - a[1]);
+
+        const stageTotals = {};
+        records.forEach((r) => {
+          const s = r.stage || 'Diğer';
+          stageTotals[s] = (stageTotals[s] || 0) + r.qty;
+        });
+        const sortedStages = Object.entries(stageTotals).sort((a, b) => b[1] - a[1]);
+
+        const colorTotals = {};
+        records.forEach((r) => {
+          const c = r.color || 'Bilinmiyor';
+          colorTotals[c] = (colorTotals[c] || 0) + r.qty;
+        });
+        const sortedColors = Object.entries(colorTotals).sort((a, b) => b[1] - a[1]);
+
+        const staffProgressEl = document.getElementById('staff-progress-list');
+        const maxWorkerQty = sortedWorkers.length > 0 && sortedWorkers[0][1] > 0 ? sortedWorkers[0][1] : 1;
+        staffProgressEl.innerHTML = sortedWorkers.filter((w) => w[1] > 0).map(([wName, qty]) => {
+          const pct = Math.round((qty / maxWorkerQty) * 100);
+          return `
+            <div class="bg-navy-950 border border-slate-800 rounded-xl p-3 text-xs">
+              <div class="flex justify-between font-bold mb-1.5">
+                <span class="text-white">${escapeHtml(wName)}</span>
+                <span class="text-blue-400 font-mono">${qty.toLocaleString('tr-TR')} Adet</span>
+              </div>
+              <div class="w-full h-2 bg-navy-800 rounded-full overflow-hidden">
+                <div class="h-full bg-blue-500 rounded-full" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('') || `<p class="col-span-full text-xs text-slate-500 text-center py-2">Henüz istatistik verisi bulunmuyor.</p>`;
+
+        const palette = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+        const clientListEl = document.getElementById('client-breakdown-list');
+        if (sortedClients.length === 0) {
+          clientListEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Henüz marka verisi yok.</p>`;
+        } else {
+          clientListEl.innerHTML = sortedClients.map(([brandName, qty], idx) => {
+            const pct = totalAllTimeQty > 0 ? ((qty / totalAllTimeQty) * 100).toFixed(1) : '0.0';
+            const dotColor = palette[idx % palette.length];
+            return `
+              <div class="flex items-center justify-between p-3 rounded-xl bg-navy-950 border border-slate-800 text-xs">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${dotColor};"></span>
+                  <span class="font-bold text-white truncate">${escapeHtml(brandName)}</span>
+                </div>
+                <div class="shrink-0 font-mono">
+                  <span class="font-extrabold text-emerald-400">${qty.toLocaleString('tr-TR')} Adet</span>
+                  <span class="text-slate-400 mr-1">(%${pct})</span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        const stageSummaryEl = document.getElementById('stage-summary-grid');
+        stageSummaryEl.innerHTML = sortedStages.length
+          ? sortedStages.map(([stName, qty]) => `
+              <div class="flex items-center justify-between p-3 rounded-xl bg-navy-950 border border-slate-800 text-xs">
+                <span class="font-semibold text-slate-200 truncate">${escapeHtml(stName)}</span>
+                <span class="font-extrabold text-amber-400 shrink-0">${qty.toLocaleString('tr-TR')} Adet</span>
+              </div>
+            `).join('')
+          : `<p class="col-span-full text-xs text-slate-500 text-center py-2">Aşama kaydı yok.</p>`;
+
+        const colorGridEl = document.getElementById('color-summary-grid');
+        colorGridEl.innerHTML = sortedColors.length
+          ? sortedColors.map(([cName, qty]) => {
+              const found = appState.colors.find((item) => (typeof item === 'string' ? item : item.name) === cName);
+              const hex = found && typeof found !== 'string' ? found.hex : '#3b82f6';
+              return `
+                <div class="flex items-center justify-between p-3 rounded-xl bg-navy-950 border border-slate-800 text-xs">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-3 h-3 rounded-full border border-white/40 shrink-0" style="background-color: ${hex};"></span>
+                    <span class="font-semibold text-slate-200 truncate">${escapeHtml(cName)}</span>
+                  </div>
+                  <span class="font-extrabold text-blue-400 shrink-0">${qty.toLocaleString('tr-TR')} Adet</span>
+                </div>
+              `;
+            }).join('')
+          : `<p class="col-span-full text-xs text-slate-500 text-center py-2">Renk kaydı yok.</p>`;
+
+        renderStaffChart(sortedWorkers);
+        renderClientChart(sortedClients, palette);
+      }
+
+      function renderStaffChart(sortedWorkers) {
+        const canvas = document.getElementById('staffChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        if (staffChartInstance) staffChartInstance.destroy();
+
+        staffChartInstance = new Chart(canvas, {
+          type: 'bar',
+          data: {
+            labels: sortedWorkers.map((w) => w[0]),
+            datasets: [{
+              label: 'Üretim Adedi',
+              data: sortedWorkers.map((w) => w[1]),
+              backgroundColor: '#3b82f6',
+              borderRadius: 8,
+              borderSkipped: false
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: {
+                ticks: { color: '#94a3b8', font: { size: 11 } },
+                grid: { display: false }
+              },
+              y: {
+                beginAtZero: true,
+                ticks: { color: '#94a3b8', font: { size: 11 } },
+                grid: { color: 'rgba(148, 163, 184, 0.12)' }
+              }
+            }
+          }
+        });
+      }
+
+      function renderClientChart(sortedClients, palette) {
+        const canvas = document.getElementById('clientChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        if (clientChartInstance) clientChartInstance.destroy();
+
+        const hasData = sortedClients.length > 0;
+        const labels = hasData ? sortedClients.map((c) => c[0]) : ['Veri Yok'];
+        const data = hasData ? sortedClients.map((c) => c[1]) : [1];
+        const bgColors = hasData ? sortedClients.map((_, i) => palette[i % palette.length]) : ['#1e293b'];
+
+        clientChartInstance = new Chart(canvas, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: data,
+              backgroundColor: bgColors,
+              borderColor: '#0b1120',
+              borderWidth: 3
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '62%',
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: hasData }
+            }
+          }
+        });
+      }
+
+      function exportCSV() {
+        if (appState.records.length === 0) {
+          showToast('İndirilecek kayıt bulunmuyor');
+          return;
+        }
+
+        const headers = ['Tarih', 'Saat', 'Personel (Kaydeden)', 'Üretim Aşaması', 'Marka / Müşteri', 'Renk', 'Model / Kod', 'Beden', 'Miktar'];
+        const rows = appState.records.map((r) => [
+          `"${r.date || ''}"`,
+          `"${r.time || ''}"`,
+          `"${(r.worker || '').replace(/"/g, '""')}"`,
+          `"${(r.stage || '').replace(/"/g, '""')}"`,
+          `"${(r.brand || '').replace(/"/g, '""')}"`,
+          `"${(r.color || '').replace(/"/g, '""')}"`,
+          `"${(r.model || '').replace(/"/g, '""')}"`,
+          `"${(r.size || '').replace(/"/g, '""')}"`,
+          r.qty
+        ].join(','));
+
+        const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Populer_Tekstil_Uretim_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('Excel Raporu (CSV) indirildi!');
+      }
+
+      function shareReport() {
+        const totalQty = appState.records.reduce((s, r) => s + r.qty, 0);
+        const workerSummary = {};
+        const brandSummary = {};
+
+        appState.records.forEach((r) => {
+          workerSummary[r.worker] = (workerSummary[r.worker] || 0) + r.qty;
+          brandSummary[r.brand] = (brandSummary[r.brand] || 0) + r.qty;
+        });
+
+        const lines = [
+          `📊 PÖPÜLER TEKSTİL - Üretim Raporu`,
+          `📦 Toplam Üretim: ${totalQty.toLocaleString('tr-TR')} Adet (${appState.records.length.toLocaleString('tr-TR')} Kayıt)`,
+          `------------------------`,
+          `👷 Personel İstatistikleri:`
+        ];
+
+        Object.entries(workerSummary).forEach(([w, q]) => lines.push(`• ${w}: ${q.toLocaleString('tr-TR')} Adet`));
+        lines.push(`------------------------`);
+        lines.push(`🏢 Marka İstatistikleri:`);
+        Object.entries(brandSummary).forEach(([b, q]) => lines.push(`• ${b}: ${q.toLocaleString('tr-TR')} Adet`));
+
+        const reportText = lines.join('\n');
+
+        const textarea = document.createElement('textarea');
+        textarea.value = reportText;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          showToast('Rapor panoya kopyalandı!');
+        } catch (e) {}
+        document.body.removeChild(textarea);
+
+        if (navigator.share) {
+          navigator.share({
+            title: 'PÖPÜLER TEKSTİL Üretim Raporu',
+            text: reportText
+          }).catch(() => {});
+        }
+      }
+
+      function clearPhotoPreview() {
+        capturedPhotoData = null;
+        const input = document.getElementById('photo-input');
+        const box = document.getElementById('photo-preview-box');
+        if (input) input.value = '';
+        if (box) box.classList.add('hidden');
+      }
+
+      function openQrModal() {
+        const modal = document.getElementById('qr-modal');
+        const container = document.getElementById('qrcode-container');
+        const urlEl = document.getElementById('current-url-text');
+        const currentUrl = window.location.href;
+
+        container.innerHTML = '';
+        urlEl.textContent = currentUrl;
+
+        if (typeof QRCode !== 'undefined') {
+          new QRCode(container, {
+            text: currentUrl,
+            width: 176,
+            height: 176,
+            colorDark: '#0b1120',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        } else {
+          container.innerHTML = `<div class="text-xs text-slate-800 font-bold p-4 text-center">${escapeHtml(currentUrl)}</div>`;
+        }
+        modal.classList.remove('hidden');
+      }
+
+      async function openScannerModal() {
+        document.getElementById('scanner-modal').classList.remove('hidden');
+        const video = document.getElementById('scanner-video');
+        const placeholder = document.getElementById('scanner-placeholder');
+
+        try {
+          if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            video.srcObject = cameraStream;
+            await video.play();
+            video.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+          }
+        } catch (err) {
+          video.classList.add('hidden');
+          placeholder.classList.remove('hidden');
+        }
+      }
+
+      function closeScannerModal() {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach((t) => t.stop());
+          cameraStream = null;
+        }
+        document.getElementById('scanner-modal').classList.add('hidden');
+      }
+
+      function openManageModal(type) {
+        currentManageType = type;
+        const titles = {
+          workers: 'Personel Yönetimi',
+          stages: 'Üretim Aşamaları Yönetimi',
+          brands: 'Marka Yönetimi',
+          colors: 'Renk Yönetimi',
+          sizes: 'Beden / Boyut Yönetimi'
+        };
+        document.getElementById('manage-modal-title').textContent = titles[type] || 'Liste Yönetimi';
+        document.getElementById('manage-new-item').value = '';
+        renderManageItems();
+        document.getElementById('manage-modal').classList.remove('hidden');
+      }
+
+      function renderManageItems() {
+        const listEl = document.getElementById('manage-items-list');
+        const items = appState[currentManageType] || [];
+
+        listEl.innerHTML = items.map((item, idx) => {
+          const label = typeof item === 'string' ? item : item.name;
+          return `
+            <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-navy-950 border border-slate-800">
+              <span class="text-xs sm:text-sm font-semibold text-white">${escapeHtml(label)}</span>
+              <button type="button" data-remove-idx="${idx}" class="btn-remove-manage text-rose-400 hover:text-rose-300 text-xs font-bold px-2 py-1">Sil</button>
+            </div>
+          `;
+        }).join('');
+
+        listEl.querySelectorAll('.btn-remove-manage').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const idx = Number(btn.getAttribute('data-remove-idx'));
+            if (appState[currentManageType].length <= 1) {
+              showToast('En az 1 öğe kalmalıdır');
+              return;
+            }
+            appState[currentManageType].splice(idx, 1);
+            syncSettingsToRTDB();
+            renderManageItems();
+            refreshPickers();
+            updateDashboardAndCharts();
+            showToast('Öğe silindi ve kaydedildi');
+          });
+        });
+      }
+
+      function addManageItem() {
+        const input = document.getElementById('manage-new-item');
+        const val = input.value.trim();
+        if (!val) return;
+
+        if (currentManageType === 'colors') {
+          const exists = appState.colors.some((c) => (typeof c === 'string' ? c : c.name).toLowerCase() === val.toLowerCase());
+          if (!exists) {
+            const randomPalette = ['#be123c', '#0f766e', '#7c3aed', '#b45309', '#0369a1', '#4d7c0f'];
+            const hex = randomPalette[appState.colors.length % randomPalette.length];
+            appState.colors.push({ name: val, hex: hex });
+          }
+          selectedColor = val;
+        } else if (currentManageType === 'stages') {
+          const exists = appState.stages.some((s) => (typeof s === 'string' ? s : s.name).toLowerCase() === val.toLowerCase());
+          if (!exists) {
+            appState.stages.push({ name: val, subtitle: 'Özel Aşama', iconType: 'default', color: '#3b82f6' });
+          }
+          selectedStage = val;
+        } else if (currentManageType === 'workers') {
+          if (!appState.workers.includes(val)) appState.workers.push(val);
+          selectedWorker = val;
+        } else if (currentManageType === 'brands') {
+          if (!appState.brands.includes(val)) appState.brands.push(val);
+          selectedBrand = val;
+        } else if (currentManageType === 'sizes') {
+          if (!appState.sizes.includes(val)) appState.sizes.push(val);
+          selectedSize = val;
+        }
+
+        syncSettingsToRTDB();
+        input.value = '';
+        renderManageItems();
+        refreshPickers();
+        updateDashboardAndCharts();
+        showToast(`"${val}" eklendi ve kaydedildi`);
+      }
+
+      function refreshPickers() {
+        if (!appState.workers.includes(selectedWorker)) selectedWorker = appState.workers[0];
+        const stageNames = appState.stages.map((s) => (typeof s === 'string' ? s : s.name));
+        if (!stageNames.includes(selectedStage)) selectedStage = stageNames[0];
+        if (!appState.brands.includes(selectedBrand)) selectedBrand = appState.brands[0];
+        const colorNames = appState.colors.map((c) => (typeof c === 'string' ? c : c.name));
+        if (!colorNames.includes(selectedColor)) selectedColor = colorNames[0];
+        if (!appState.sizes.includes(selectedSize)) selectedSize = appState.sizes[0] || 'STD';
+
+        renderWorkers();
+        renderStages();
+        renderBrands();
+        renderColors();
+        renderSizes();
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function initApp() {
+        startLiveClock();
+        refreshPickers();
+        updateDashboardAndCharts();
+        initRealtimeDatabase();
+
+        const brandDropdown = document.getElementById('brand-dropdown');
+        if (brandDropdown) {
+          brandDropdown.addEventListener('change', (e) => {
+            selectedBrand = e.target.value;
+            renderBrands();
+          });
+        }
+
+        document.querySelectorAll('.nav-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            switchTab(btn.getAttribute('data-tab'));
+          });
+        });
+
+        document.getElementById('btn-apply-custom-color').addEventListener('click', () => {
+          const input = document.getElementById('custom-color-input');
+          const val = input.value.trim();
+          if (!val) {
+            showToast('Lütfen renk adı girin');
+            return;
+          }
+          const exists = appState.colors.some((c) => (typeof c === 'string' ? c : c.name).toLowerCase() === val.toLowerCase());
+          if (!exists) {
+            appState.colors.push({ name: val, hex: '#ef4444' });
+            syncSettingsToRTDB();
+          }
+          selectedColor = val;
+          input.value = '';
+          renderColors();
+          showToast(`Renk eklendi ve seçildi: ${val}`);
+        });
+
+        document.getElementById('photo-input').addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            capturedPhotoData = ev.target.result;
+            document.getElementById('photo-preview-img').src = capturedPhotoData;
+            document.getElementById('photo-preview-box').classList.remove('hidden');
+          };
+          reader.readAsDataURL(file);
+        });
+
+        document.getElementById('btn-clear-photo').addEventListener('click', clearPhotoPreview);
+
+        document.querySelectorAll('.btn-qty-delta').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const delta = parseInt(btn.getAttribute('data-delta'), 10);
+            const qtyInput = document.getElementById('qty-input');
+            const current = parseInt(qtyInput.value, 10) || 0;
+            qtyInput.value = Math.max(1, current + delta);
+          });
+        });
+
+        document.getElementById('btn-save-record').addEventListener('click', saveProductionRecord);
+        document.getElementById('record-search-input').addEventListener('input', updateDashboardAndCharts);
+
+        document.getElementById('btn-open-qr').addEventListener('click', openQrModal);
+        document.getElementById('btn-header-share').addEventListener('click', shareReport);
+        document.getElementById('btn-export-csv').addEventListener('click', exportCSV);
+
+        const triggerReset = () => {
+          document.getElementById('reset-modal').classList.remove('hidden');
+        };
+        document.getElementById('btn-header-reset').addEventListener('click', triggerReset);
+        const adminResetBtn = document.getElementById('btn-open-reset-admin');
+        if (adminResetBtn) adminResetBtn.addEventListener('click', triggerReset);
+
+        document.getElementById('btn-confirm-reset').addEventListener('click', () => {
+          resetAllRecords();
+          document.getElementById('reset-modal').classList.add('hidden');
+        });
+
+        document.getElementById('btn-open-scanner').addEventListener('click', openScannerModal);
+        document.getElementById('btn-close-scanner').addEventListener('click', closeScannerModal);
+        document.getElementById('btn-apply-scan').addEventListener('click', () => {
+          const val = document.getElementById('manual-qr-input').value.trim();
+          if (val) {
+            document.getElementById('model-input').value = val;
+            document.getElementById('manual-qr-input').value = '';
+            showToast(`Kod girildi: ${val}`);
+          }
+          closeScannerModal();
+        });
+
+        document.querySelectorAll('.btn-manage').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            openManageModal(btn.getAttribute('data-manage'));
+          });
+        });
+        document.getElementById('btn-add-manage-item').addEventListener('click', addManageItem);
+
+        document.querySelectorAll('.btn-close-modal').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const modalId = btn.getAttribute('data-close');
+            const modalEl = document.getElementById(modalId);
+            if (modalEl) modalEl.classList.add('hidden');
+          });
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+      } else {
+        initApp();
+      }
+    })();
+  </script>
+</body>
+</html>
